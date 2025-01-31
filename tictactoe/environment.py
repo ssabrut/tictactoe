@@ -1,9 +1,10 @@
 import pygame
 import numpy as np
+from tictactoe import X_SYMBOL, O_SYMBOL
 
-class Board:
+class Environment:
     def __init__(self):
-        self.state = np.array([
+        self.board = np.array([
             ['', '', ''], 
             ['', '', ''], 
             ['', '', '']
@@ -13,21 +14,29 @@ class Board:
         if event.type == pygame.MOUSEBUTTONDOWN:
             clicked_i = mouse_pos[0] // 240
             clicked_j = mouse_pos[1] // 240
-            if self.state[clicked_j][clicked_i] == '':
-                self.state[clicked_j][clicked_i] = 'X'
+            if self.board[clicked_j][clicked_i] == '':
+                self.board[clicked_j][clicked_i] = X_SYMBOL
 
     def __draw_board(self, screen):
         for i in range(3):
             for j in range(3):
                 pygame.draw.rect(screen, "black", (i*240, j*240, 240, 240), 5)
-                self.__draw_symbol(screen, i, j)
+                self.draw_symbol(screen, i, j)
 
-    def __draw_symbol(self, screen, i, j):
-        if self.state[j][i] != '':
+    def draw_symbol(self, screen, i, j):
+        if self.board[j][i] != '':
             font = pygame.font.Font(None, 200)
-            text = font.render(self.state[j][i], True, 'black')
+            text = font.render(self.board[j][i], True, 'black')
             text_rect = text.get_rect(center=(i*240 + 120, j*240 + 120))
             screen.blit(text, text_rect)
+
+    def terminal_state(self):
+        for i in range(3):
+            if len(set(self.board[i])) == 1 or len(set(self.board[:, i])) == 1:
+                return set(self.board[i])
+        if len(set(np.diag(self.board))) == 1 or len(set(np.diag(np.fliplr(self.board)))) == 1:
+            return set(self.board[i])
+        return None
 
     def render(self):
         pygame.init()
